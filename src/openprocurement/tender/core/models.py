@@ -164,6 +164,7 @@ class ComplaintModelType(ModelType):
 class Document(BaseDocument):
     documentOf = StringType(required=True, choices=[
                             "tender", "item", "lot",  "document"], default="tender")
+    templateId = StringType()
 
 
     def validate_relatedItem(self, data, relatedItem):
@@ -180,6 +181,11 @@ class Document(BaseDocument):
                 documents = get_all_nested_from_the_object("documents",tender) + get_all_nested_from_the_object("documents",parent)
                 if relatedItem not in [i.id for i in documents]:
                     raise ValidationError(u"relatedItem should be one of documents")
+
+    def validate_templateId(self, data, templateId):
+        document_type = data.get("documentType")
+        if document_type and document_type == "contractProforma" and not templateId:
+            raise ValidationError(u"templateId is required for documentType 'contractProforma'")
 
 
 class ConfidentialDocumentModelType(ModelType):
