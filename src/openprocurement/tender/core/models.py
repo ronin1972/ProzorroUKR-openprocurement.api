@@ -1474,16 +1474,30 @@ class BaseTender(OpenprocurementSchematicsDocument, Model):
         if data.get('status', '') not in ('active.enquiries', 'active.tendering', 'active.awarded'):
             return
         docs = {
-            'contractProforma': [],
-            'contractTemplate': [],
-            'contractForm': []
+            'contractProforma': {
+                "ids": set(),
+                "relatedItems": set()
+            },
+            'contractTemplate': {
+                "ids": set(),
+                "relatedItems": set()
+            },
+            'contractForm': {
+                "ids": set(),
+                "relatedItems": set()
+            },
+            'contractSchema': {
+                "ids": set(),
+                "relatedItems": set()
+            }
         }
         resource = "lot" if data.get('lots', []) else "tender"
         for doc in value:
             if hasattr(doc, 'documentType') and doc.documentType in docs:
-                docs[doc.documentType].append(doc.relatedItem)
+                docs[doc.documentType]["relatedItems"].add(doc.relatedItem)
+                docs[doc.documentType]["ids"].add(doc.id)
         for key in docs:
-            if len(docs[key]) != len(set(docs[key])):
+            if len(docs[key]["ids"]) != len(docs[key]["relatedItems"]):
                 raise ValidationError("Allow only one document with documentType '{}' per {}.".format(key, resource))
 
     def _acl_cancellation(self, acl):
