@@ -26,6 +26,8 @@ class Root(object):
         (Allow, "g:admins", ALL_PERMISSIONS),
         (Allow, "g:bots", "upload_tender_documents"),
         (Allow, "g:bots", "upload_qualification_documents"),
+        (Allow, "g:template_registry_bots", "upload_tender_documents"),
+        (Allow, "g:renderer_bots", "upload_tender_documents"),
     ]
 
     def __init__(self, request):
