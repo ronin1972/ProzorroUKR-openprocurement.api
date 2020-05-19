@@ -5,7 +5,10 @@ from copy import deepcopy
 from openprocurement.api.tests.base import snitch
 
 from openprocurement.tender.belowthreshold.tests.base import test_organization, test_author
-from openprocurement.tender.belowthreshold.tests.bid_blanks import patch_tender_with_bids_lots_none
+from openprocurement.tender.belowthreshold.tests.bid_blanks import (
+    patch_tender_with_bids_lots_none,
+    create_tender_bid_contract_data_document_json,
+)
 from openprocurement.tender.cfaua.tests.base import (
     BaseTenderContentWebTest,
     test_features_tender_data,
@@ -142,6 +145,7 @@ class TenderBidDocumentWithDSResourceTest(TenderBidDocumentResourceTest):
     test_change_bid_document_in_qualification_st_st = snitch(change_bid_document_in_qualification_st_st)
     test_view_bid_in_qualification_st_st = snitch(view_bid_in_qualification_st_st)
     test_post_winningBid_document_in_awarded = snitch(post_winningBid_document_in_awarded)
+    test_create_tender_bid_contract_data_document_json = snitch(create_tender_bid_contract_data_document_json)
 
 
 class TenderBidBatchDocumentsWithDSResourceTest(BaseTenderLotsContentWebTest):
