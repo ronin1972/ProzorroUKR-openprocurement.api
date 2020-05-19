@@ -1603,6 +1603,10 @@ def validate_update_contract_status_by_supplier(request):
 
 
 def validate_role_for_contract_document_operation(request):
+    if request.authenticated_role == "renderer_bots" and \
+            hasattr(request.validated["document"], "documentType") and \
+            request.validated["document"].documentType in ("contractData", "contract"):
+        return
     if request.authenticated_role not in ("tender_owner", "contract_supplier",):
         raise_operation_error(request, "Can {} document only buyer or supplier".format(OPERATIONS.get(request.method)))
     if request.authenticated_role == "contract_supplier" and \
@@ -1647,12 +1651,19 @@ def validate_contract_supplier_role_for_contract_document_uploading(request):
 def validate_relatedItem_for_contract_document_uploading(request):
     if "data" in request.validated:
         data = request.validated["data"]
-        parent = data["__parent__"]
+        contract = data["__parent__"]
         documents = []
-        if hasattr(parent, "documents"):
-            documents = parent.documents
-        elif hasattr(parent["__parent__"], "documents"):
-            documents = parent["__parent__"].documents
-        if data.get("documentOf") == "document" and data.get('relatedItem') not in [i.id for i in documents]:
-            raise_operation_error(
-                    request, "relatedItem should be one of contract documents")
+        if hasattr(contract, "documents"):
+            documents = contract.documents
+        elif hasattr(contract["__parent__"], "documents"):
+            documents = contract["__parent__"].documents
+        if data.get("documentOf") == "document" and \
+                data.get("documentType") not in ("contract", "contractData") and \
+                data.get("relatedItem") not in [i.id for i in documents]:
+            raise_operation_error(request, "relatedItem should be one of contract documents")
+        if data.get("documentType") in ("contract", "contractData"):
+            doc_ids = [i.id
+                       for i in contract.__parent__.get("documents", [])
+                       if i.get("documentType") == "contractProforma"]
+            if data.get("relatedItem") not in doc_ids:
+                raise_operation_error(request, "relatedItem should be one of tender contractProforma documents")
